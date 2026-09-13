@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frog Exponent Challenge - Agoes Kangen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(180deg, #10b981 0%, #047857 100%);
+            touch-action: manipulation;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        .font-game {
+            font-family: 'Fredoka', cursive;
+        }
+        
+        /* Scene Background Styling */
+        .pond-bg {
+            background: radial-gradient(circle at 50% 30%, #064e3b 0%, #022c22 65%, #011710 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Water Ripples & Splashes */
+        .ripple {
+            position: absolute;
+            border: 4px solid rgba(56, 189, 248, 0.9);
+            border-radius: 50%;
+            animation: ripple-anim 0.85s ease-out forwards;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+        }
+        @keyframes ripple-anim {
+            0% { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { width: 170px; height: 170px; opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Water Splash Droplets */
+        .splash-drop {
+            position: absolute;
+            width: 8px;
+            height: 14px;
+            background: #38bdf8;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: splash-anim 0.65s ease-out forwards;
+        }
+        @keyframes splash-anim {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            50% { transform: translate(var(--dx), -45px) scale(1.3); }
+            100% { opacity: 0; transform: translate(calc(var(--dx) * 1.5), 35px) scale(0.2); }
+        }
+
+        /* Lily Pad Animations */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-6deg); }
+            75% { transform: rotate(6deg); }
+        }
+        .animate-wobble {
+            animation: wobble 0.4s ease-in-out infinite;
+        }
+
+        /* Enhanced Sink/Splash into Water on Wrong Answer */
+        @keyframes sink {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+            25% { transform: translateY(-20px) scale(1.1) rotate(-15deg); opacity: 1; }
+            100% { transform: translateY(110px) scale(0.2) rotate(35deg); opacity: 0; filter: brightness(0.3) blur(2px); }
+        }
+        .animate-sink {
+            animation: sink 0.75s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+        }
+
+        /* Dynamic High Jump Animation on Correct Answer */
+        @keyframes jump-up {
+            0% { transform: translateY(0) scale(1) rotate(0deg); }
+            45% { transform: translateY(-135px) scale(1.4) rotate(-10deg); }
+            55% { transform: translateY(-135px) scale(1.4) rotate(10deg); }
+            100% { transform: translateY(0) scale(1) rotate(0deg); }
+        }
+        .animate-jump {
+            animation: jump-up 0.65s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        @keyframes float-leaf {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float-leaf 3s ease-in-out infinite;
+        }
+
+        /* Glassmorphism UI */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Particle Sparkles */
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: float-sparkle 1s ease-out forwards;
+        }
+        @keyframes float-sparkle {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5); }
+        }
+
+        /* Hero Frog & Floating Animation */
+        @keyframes float-hero {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(1.5deg); }
+        }
+        .animate-float-hero {
+            animation: float-hero 3.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.08); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes float-math {
+            0%, 100% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .animate-float-math {
+            animation: float-math 2.5s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between select-none">
+
+    <header class="bg-emerald-900/80 backdrop-blur-md border-b border-emerald-700/50 p-3 px-4 flex justify-between items-center z-50 sticky top-0 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-500/30 p-2 rounded-2xl border border-emerald-400/30">
+                <span class="text-3xl">🐸</span>
+            </div>
+            <div>
+                <h1 class="font-game text-xl md:text-2xl font-bold tracking-wide text-yellow-300 drop-shadow-md leading-none">
+                    FROG EXPONENT CHALLENGE
+                </h1>
+                <p class="text-xs text-emerald-200 hidden sm:block">Matematika Eksponen Kelas X SMA • Karya: Agoes Kangen</p>
+            </div>
+        </div>
+
+        <!-- Global Action Controls -->
+        <div class="flex items-center space-x-2">
+            <button id="bgmBtn" onclick="toggleBGM()" class="bg-emerald-700 hover:bg-emerald-600 active:scale-95 transition p-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-1 border border-emerald-500/40 shadow-sm" title="Toggle Sound">
+                <span id="bgmIcon">🔇</span>
+                <span id="bgmText" class="hidden sm:inline">BGM OFF</span>
+            </button>
+            <button onclick="toggleFullScreen()" class="bg-emerald-700 hover:bg-emerald-600 active:scale-95 transition p-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-1 border border-emerald-500/40 shadow-sm" title="Full Screen">
+                <span>⛶</span>
+                <span class="hidden sm:inline">Layar Penuh</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-2 sm:p-4 relative">
+
+        <!-- 1. MAIN MENU SCREEN (VIBRANT & MODERN RE-DESIGN) -->
+        <div id="mainMenu" class="w-full max-w-4xl bg-gradient-to-br from-emerald-900/90 via-teal-950/85 to-indigo-950/90 backdrop-blur-xl rounded-3xl p-5 sm:p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden my-auto border-2 border-emerald-400/40">
+            
+            <!-- Colorful Dynamic Background Glow Spheres -->
+            <div class="absolute -top-16 -left-16 w-48 h-48 bg-yellow-400/30 rounded-full blur-3xl animate-pulse-glow"></div>
+            <div class="absolute -bottom-20 -right-20 w-60 h-60 bg-pink-500/25 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 1.5s;"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-cyan-400/15 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+                <!-- Top Badge -->
+                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-400/20 via-emerald-400/20 to-cyan-400/20 border border-yellow-300/50 px-4 py-1.5 rounded-full text-yellow-300 font-extrabold text-xs sm:text-sm mb-3 uppercase tracking-wider shadow-md backdrop-blur-md">
+                    <span>✨</span>
+                    <span>Game Edukasi Eksponen SMA Class X</span>
+                    <span>✨</span>
+                </div>
+                
+                <!-- Hero Section: Big Frog Mascot & Animated Math Chips -->
+                <div class="relative flex items-center justify-center my-2 sm:my-4">
+                    <!-- Floating Math Exponent Chips around Frog -->
+                    <div class="absolute top-2 left-4 sm:left-16 bg-pink-500/80 text-white font-game text-xs sm:text-sm font-bold px-3 py-1 rounded-2xl shadow-lg border border-pink-300/60 animate-float-math">
+                        2<sup>5</sup> = 32
+                    </div>
+                    <div class="absolute bottom-4 right-4 sm:right-16 bg-cyan-500/80 text-white font-game text-xs sm:text-sm font-bold px-3 py-1 rounded-2xl shadow-lg border border-cyan-300/60 animate-float-math" style="animation-delay: 1s;">
+                        a<sup>m</sup> × a<sup>n</sup>
+                    </div>
+                    <div class="absolute top-6 right-8 sm:right-24 bg-amber-400/90 text-emerald-950 font-game text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-2xl shadow-lg border border-amber-200 animate-float-math" style="animation-delay: 1.8s;">
+                        5<sup>0</sup> = 1
+                    </div>
+
+                    <!-- Glowing Radial Background for Hero -->
+                    <div class="absolute w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-tr from-emerald-400/30 via-lime-300/30 to-yellow-300/20 rounded-full blur-2xl"></div>
+
+                    <!-- Big Colorful SVG Frog Hero -->
+                    <div class="animate-float-hero relative z-10 filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]">
+                        <svg class="w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64" viewBox="0 0 120 120">
+                            <!-- Floating Lotus Leaf Base -->
+                            <ellipse cx="60" cy="104" rx="52" ry="14" fill="#059669" />
+                            <ellipse cx="60" cy="104" rx="46" ry="10" fill="#10b981" />
+                            <path d="M 60 104 L 95 98 L 60 94 Z" fill="#047857" opacity="0.6" />
+
+                            <!-- Frog Shadow -->
+                            <ellipse cx="60" cy="94" rx="36" ry="8" fill="rgba(0,0,0,0.3)" />
+
+                            <!-- Back Legs -->
+                            <ellipse cx="24" cy="80" rx="16" ry="12" fill="#15803d" transform="rotate(-20 24 80)" />
+                            <ellipse cx="96" cy="80" rx="16" ry="12" fill="#15803d" transform="rotate(20 96 80)" />
+                            
+                            <!-- Main Frog Body -->
+                            <ellipse cx="60" cy="72" rx="40" ry="30" fill="#22c55e" />
+                            <ellipse cx="60" cy="76" rx="28" ry="20" fill="#a3e635" />
+
+                            <!-- Cheerful Belly Pattern -->
+                            <circle cx="50" cy="74" r="3" fill="#84cc16" opacity="0.6" />
+                            <circle cx="70" cy="76" r="2.5" fill="#84cc16" opacity="0.6" />
+                            <circle cx="60" cy="82" r="3.5" fill="#84cc16" opacity="0.6" />
+
+                            <!-- Front Arms -->
+                            <ellipse cx="38" cy="82" rx="6" ry="14" fill="#16a34a" transform="rotate(15 38 82)" />
+                            <ellipse cx="82" cy="82" rx="6" ry="14" fill="#16a34a" transform="rotate(-15 82 82)" />
+
+                            <!-- Big Expressive Eyes Base -->
+                            <circle cx="36" cy="38" r="17" fill="#22c55e" />
+                            <circle cx="36" cy="38" r="13" fill="#ffffff" />
+                            <circle cx="38" cy="36" r="7" fill="#0f172a" />
+                            <circle cx="41" cy="33" r="3" fill="#ffffff" /> <!-- Eye shine -->
+
+                            <circle cx="84" cy="38" r="17" fill="#22c55e" />
+                            <circle cx="84" cy="38" r="13" fill="#ffffff" />
+                            <circle cx="82" cy="36" r="7" fill="#0f172a" />
+                            <circle cx="79" cy="33" r="3" fill="#ffffff" /> <!-- Eye shine -->
+
+                            <!-- Cute Rosy Cheeks -->
+                            <ellipse cx="30" cy="62" rx="7" ry="4" fill="#fb7185" opacity="0.75" />
+                            <ellipse cx="90" cy="62" rx="7" ry="4" fill="#fb7185" opacity="0.75" />
+
+                            <!-- Happy Big Smile -->
+                            <path d="M 42 60 Q 60 76 78 60" stroke="#065f46" stroke-width="4" fill="none" stroke-linecap="round" />
+                            
+                            <!-- Smart Math Glasses / Crown -->
+                            <path d="M 52 26 L 60 14 L 68 26 L 76 18 L 74 30 L 46 30 L 44 18 Z" fill="#facc15" stroke="#ca8a04" stroke-width="2" stroke-linejoin="round" />
+                            <circle cx="60" cy="14" r="3" fill="#ef4444" />
+                            <circle cx="52" cy="26" r="2.5" fill="#3b82f6" />
+                            <circle cx="68" cy="26" r="2.5" fill="#10b981" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Modern Title with Vibrant Gradients -->
+                <h2 class="font-game text-4xl sm:text-6xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-lime-300 to-cyan-300 drop-shadow-[0_5px_15px_rgba(0,0,0,0.6)] tracking-wide mb-1">
+                    FROG EXPONENT
+                </h2>
+                <p class="text-emerald-100 text-sm sm:text-base max-w-xl mx-auto mb-6 font-semibold drop-shadow">
+                    Lompati teratai jawaban yang tepat & jadilah sang juara eksponen! 🚀
+                </p>
+
+                <!-- Modern Colorful Game Mode Cards -->
+                <div class="mb-6">
+                    <h3 class="text-xs font-black uppercase tracking-widest text-cyan-300 mb-3 drop-shadow">
+                        🎮 PILIH MODE PERMAINAN
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 max-w-3xl mx-auto">
+                        
+                        <!-- Solo Mode Button -->
+                        <button onclick="startWithMode('solo')" id="btnModeSolo" class="group relative overflow-hidden bg-gradient-to-b from-emerald-500/80 to-teal-800/90 hover:from-emerald-400 hover:to-teal-700 border-2 border-emerald-300/60 hover:border-yellow-300 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-[0_10px_25px_rgba(16,185,129,0.5)] text-left flex flex-col justify-between">
+                            <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full blur-md group-hover:scale-150 transition-transform"></div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-3xl sm:text-4xl p-2 bg-emerald-950/40 rounded-xl border border-emerald-400/30">🐸</span>
+                                <span class="text-[10px] font-extrabold bg-emerald-400/30 text-emerald-200 px-2 py-0.5 rounded-md border border-emerald-300/30">1 PLAYER</span>
+                            </div>
+                            <div>
+                                <div class="font-game text-xl text-yellow-300 font-bold group-hover:translate-x-1 transition-transform">SOLO MODE</div>
+                                <div class="text-xs text-emerald-100 font-medium">Asah kemampuan & kuasai materi eksponen secara mandiri.</div>
+                            </div>
+                        </button>
+
+                        <!-- Duel Mode Button -->
+                        <button onclick="startWithMode('duel')" id="btnModeDuel" class="group relative overflow-hidden bg-gradient-to-b from-amber-500/80 to-rose-800/90 hover:from-amber-400 hover:to-rose-700 border-2 border-amber-300/60 hover:border-yellow-300 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-[0_10px_25px_rgba(245,158,11,0.5)] text-left flex flex-col justify-between">
+                            <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full blur-md group-hover:scale-150 transition-transform"></div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-3xl sm:text-4xl p-2 bg-amber-950/40 rounded-xl border border-amber-400/30">⚔️</span>
+                                <span class="text-[10px] font-extrabold bg-amber-400/30 text-amber-200 px-2 py-0.5 rounded-md border border-amber-300/30">2 PLAYERS</span>
+                            </div>
+                            <div>
+                                <div class="font-game text-xl text-yellow-300 font-bold group-hover:translate-x-1 transition-transform">DUEL MODE</div>
+                                <div class="text-xs text-amber-100 font-medium">Tantang teman dalam 1 layar split-screen horizontal!</div>
+                            </div>
+                        </button>
+
+                        <!-- Squad Mode Button -->
+                        <button onclick="startWithMode('squad')" id="btnModeSquad" class="group relative overflow-hidden bg-gradient-to-b from-indigo-600/80 to-purple-900/90 hover:from-indigo-500 hover:to-purple-800 border-2 border-indigo-300/60 hover:border-yellow-300 p-4 rounded-2xl transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-[0_10px_25px_rgba(99,102,241,0.5)] text-left flex flex-col justify-between">
+                            <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-white/10 rounded-full blur-md group-hover:scale-150 transition-transform"></div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-3xl sm:text-4xl p-2 bg-indigo-950/40 rounded-xl border border-indigo-400/30">👥</span>
+                                <span class="text-[10px] font-extrabold bg-indigo-400/30 text-indigo-200 px-2 py-0.5 rounded-md border border-indigo-300/30">4 PLAYERS</span>
+                            </div>
+                            <div>
+                                <div class="font-game text-xl text-yellow-300 font-bold group-hover:translate-x-1 transition-transform">SQUAD MODE</div>
+                                <div class="text-xs text-indigo-100 font-medium">Kompetisi seru 4 pemain sekaligus secara vertikal!</div>
+                            </div>
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- Secondary Action Buttons -->
+                <div class="flex flex-wrap justify-center gap-3 max-w-xl mx-auto">
+                    <button onclick="openModal('instructionsModal')" class="bg-emerald-800/80 hover:bg-emerald-700 active:scale-95 font-bold py-3 px-6 rounded-2xl border border-emerald-400/40 hover:border-yellow-400 transition shadow-md flex items-center space-x-2 text-sm">
+                        <span>📚</span>
+                        <span>PETUNJUK</span>
+                    </button>
+                    <button onclick="openModal('aboutModal')" class="bg-emerald-800/80 hover:bg-emerald-700 active:scale-95 font-bold py-3 px-6 rounded-2xl border border-emerald-400/40 hover:border-yellow-400 transition shadow-md flex items-center space-x-2 text-sm">
+                        <span>❓</span>
+                        <span>TENTANG</span>
+                    </button>
+                </div>
+
+                <!-- Author Footer -->
+                <div class="mt-6 text-xs text-emerald-300/90 border-t border-emerald-700/50 pt-3">
+                    Karya Interaktif: <span class="text-yellow-300 font-bold hover:underline">Agoes Kangen</span> • Matematika Eksponen SMA
+                </div>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="w-full h-full max-w-7xl hidden flex-col justify-between">
+            <div class="flex justify-between items-center mb-2 px-1">
+                <button onclick="quitGame()" class="bg-rose-700/80 hover:bg-rose-600 active:scale-95 transition px-3.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-1.5 border border-rose-400/40 shadow-md">
+                    <span>🏠</span>
+                    <span>Menu Utama</span>
+                </button>
+                <div id="modeIndicator" class="text-xs sm:text-sm font-bold text-yellow-300 bg-emerald-900/80 px-3 py-1 rounded-xl border border-emerald-500/40 shadow-sm">
+                    MODE SOLO
+                </div>
+            </div>
+
+            <!-- Dynamic Grid Container for Players (1, 2, or 4 players) -->
+            <div id="playersGrid" class="grid grid-cols-1 gap-4 w-full h-full flex-grow">
+                <!-- Player Viewport Card Templates will be dynamically inserted here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- INSTRUCTIONS MODAL -->
+    <div id="instructionsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-emerald-900 border-2 border-emerald-400/50 rounded-3xl p-6 max-w-lg w-full text-left shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-emerald-700 pb-3">
+                <h3 class="font-game text-2xl text-yellow-300">📖 PETUNJUK PERMAINAN</h3>
+                <button onclick="closeModal('instructionsModal')" class="text-emerald-300 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            <div class="space-y-3 text-sm text-emerald-100">
+                <p>1. <strong>Baca Soal:</strong> Perhatikan pertanyaan bilangan berpangkat / eksponen yang muncul di bagian atas layar.</p>
+                <p>2. <strong>Pilih Teratai:</strong> Pilih daun teratai dengan pilihan jawaban yang tepat (A, B, C, atau D).</p>
+                <p>3. <strong>Kontrol Keyboard (Desktop):</strong>
+                    <br>• Player 1: Angka <code class="bg-emerald-800 px-1.5 py-0.5 rounded text-yellow-300">1, 2, 3, 4</code>
+                    <br>• Player 2: Tombol <code class="bg-emerald-800 px-1.5 py-0.5 rounded text-yellow-300">Q, W, E, R</code>
+                    <br>• Player 3: Tombol <code class="bg-emerald-800 px-1.5 py-0.5 rounded text-yellow-300">A, S, D, F</code>
+                    <br>• Player 4: Tombol <code class="bg-emerald-800 px-1.5 py-0.5 rounded text-yellow-300">Z, X, C, V</code>
+                </p>
+                <p>4. <strong>Skor & Streak:</strong> Jawaban benar memberikan +100 poin plus bonus streak beruntun!</p>
+                <p>5. <strong>Hati-hati:</strong> Jawaban salah atau habis waktu akan mengurangi 1 nyawa dan membuat katak tenggelam ke dalam air 💦.</p>
+            </div>
+            <div class="text-center pt-2">
+                <button onclick="closeModal('instructionsModal')" class="bg-yellow-400 hover:bg-yellow-300 text-emerald-950 font-bold py-2.5 px-6 rounded-xl shadow-md">
+                    SAYA SIAP!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT MODAL -->
+    <div id="aboutModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-emerald-900 border-2 border-emerald-400/50 rounded-3xl p-6 max-w-lg w-full text-center shadow-2xl space-y-4">
+            <span class="text-5xl">🐸</span>
+            <h3 class="font-game text-2xl text-yellow-300">FROG EXPONENT CHALLENGE</h3>
+            <p class="text-xs text-emerald-200">Versi 1.0 • Game Pembelajaran Interaktif</p>
+            <div class="bg-emerald-950/60 p-4 rounded-2xl border border-emerald-700/50 text-emerald-100 text-sm text-left space-y-2">
+                <p><strong>Materi:</strong> Bilangan Berpangkat / Eksponen (Kelas X SMA)</p>
+                <p><strong>Pengembang / Penulis:</strong> Agoes Kangen</p>
+                <p><strong>Fitur Utama:</strong> Dynamic Multi-Player, Web Audio API Sound Synth, Pembahasan Soal Interaktif, Responsive Touch UI.</p>
+            </div>
+            <button onclick="closeModal('aboutModal')" class="bg-emerald-700 hover:bg-emerald-600 font-bold py-2 px-6 rounded-xl">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <!-- QUIT CONFIRMATION MODAL -->
+    <div id="quitConfirmModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-emerald-900 border-2 border-rose-400/60 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4">
+            <span class="text-4xl">⚠️</span>
+            <h3 class="font-game text-xl sm:text-2xl text-yellow-300">KEMBALI KE MENU?</h3>
+            <p class="text-xs sm:text-sm text-emerald-100">
+                Permainan sedang berlangsung. Apakah kamu yakin ingin keluar ke Menu Utama? Progres permainan saat ini akan dihentikan.
+            </p>
+            <div class="flex justify-center gap-3 pt-2">
+                <button onclick="confirmQuitGame()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-5 rounded-xl text-xs sm:text-sm shadow-md transition">
+                    Ya, Keluar
+                </button>
+                <button onclick="closeModal('quitConfirmModal')" class="bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 px-5 rounded-xl text-xs sm:text-sm transition border border-emerald-500/40">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME OVER / LEADERBOARD MODAL -->
+    <div id="resultModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-emerald-900 border-2 border-yellow-400/70 rounded-3xl p-6 max-w-xl w-full text-center shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <span class="text-6xl animate-bounce inline-block">🏆</span>
+            <h3 id="resultTitle" class="font-game text-3xl text-yellow-300">PERMAINAN SELESAI!</h3>
+            
+            <div id="leaderboardContainer" class="space-y-3 my-4">
+                <!-- Leaderboard or Solo summary cards will be appended here -->
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button onclick="startGame()" class="bg-yellow-400 hover:bg-yellow-300 text-emerald-950 font-bold py-3 px-6 rounded-xl shadow-lg">
+                    🔄 MAIN LAGI
+                </button>
+                <button onclick="openReviewModal()" class="bg-emerald-700 hover:bg-emerald-600 font-bold py-3 px-6 rounded-xl border border-emerald-400/40">
+                    📋 LIHAT PEMBAHASAN
+                </button>
+                <button onclick="returnToMenu()" class="bg-emerald-800 hover:bg-emerald-700 font-bold py-3 px-6 rounded-xl">
+                    🏠 MENU UTAMA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISCUSSION / REVIEW MODAL -->
+    <div id="reviewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-emerald-900 border-2 border-emerald-400/50 rounded-3xl p-6 max-w-2xl w-full text-left shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-emerald-700 pb-3 mb-4">
+                <h3 class="font-game text-2xl text-yellow-300">📚 PEMBAHASAN SOAL</h3>
+                <button onclick="closeModal('reviewModal')" class="text-emerald-300 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div id="reviewContent" class="flex-grow overflow-y-auto space-y-4 pr-2">
+                <!-- Questions and step-by-step explanations will be appended here -->
+            </div>
+
+            <div class="border-t border-emerald-700 pt-3 mt-4 flex justify-between items-center">
+                <span id="reviewPageIndicator" class="text-xs text-emerald-300">Soal 1 dari 10</span>
+                <div class="space-x-2">
+                    <button id="btnPrevReview" onclick="navigateReview(-1)" class="bg-emerald-700 hover:bg-emerald-600 px-4 py-2 rounded-xl text-sm font-bold">← Sebelumnya</button>
+                    <button id="btnNextReview" onclick="navigateReview(1)" class="bg-emerald-700 hover:bg-emerald-600 px-4 py-2 rounded-xl text-sm font-bold">Berikutnya →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           1. CONFIGURATION & STATE MANAGEMENT
+           ========================================================================== */
+        const GAME_CONFIG = {
+            questionsPerGame: 10,
+            startingLives: 3,
+            timePerQuestion: 20, // seconds
+            basePoints: 100,
+            streakBonuses: { 2: 20, 3: 40, 5: 100 }
+        };
+
+        let currentMode = 'solo'; // 'solo', 'duel', or 'squad'
+        let players = [];
+        let isAudioOn = false;
+        let reviewIndex = 0;
+        let globalAnsweredQuestions = [];
+
+        /* ==========================================================================
+           2. QUESTION BANK (40+ EXPONENT QUESTIONS FOR GRADE 10 SMA)
+           ========================================================================== */
+        const QUESTION_BANK = [
+            // LEVEL 1: MUDAH
+            { id: 1, difficulty: "Mudah", level: 1, q: "Berapakah nilai dari 2<sup>5</sup>?", opts: ["16", "24", "32", "64"], correct: 2, exp: "2<sup>5</sup> = 2 × 2 × 2 × 2 × 2 = 32." },
+            { id: 2, difficulty: "Mudah", level: 1, q: "Nilai dari 3<sup>3</sup> adalah...", opts: ["9", "18", "27", "81"], correct: 2, exp: "3<sup>3</sup> = 3 × 3 × 3 = 27." },
+            { id: 3, difficulty: "Mudah", level: 1, q: "Berapakah hasil dari 5<sup>0</sup>?", opts: ["0", "1", "5", "Tidak terdefinisi"], correct: 1, exp: "Setiap bilangan real bukan nol yang dipangkatkan 0 hasilnya adalah 1 (a<sup>0</sup> = 1)." },
+            { id: 4, difficulty: "Mudah", level: 1, q: "Bentuk sederhana dari 4<sup>-1</sup> adalah...", opts: ["-4", "1/4", "0,4", "-1/4"], correct: 1, exp: "Pangkat negatif: a<sup>-n</sup> = 1 / a<sup>n</sup>. Maka 4<sup>-1</sup> = 1/4." },
+            { id: 5, difficulty: "Mudah", level: 1, q: "Hasil perkalian 2<sup>3</sup> × 2<sup>2</sup> adalah...", opts: ["16", "32", "64", "128"], correct: 1, exp: "Sifat perkalian eksponen: a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup>. Jadi 2<sup>3+2</sup> = 2<sup>5</sup> = 32." },
+            { id: 6, difficulty: "Mudah", level: 1, q: "Hasil pembagian 3<sup>5</sup> ÷ 3<sup>2</sup> adalah...", opts: ["9", "18", "27", "81"], correct: 2, exp: "Sifat pembagian eksponen: a<sup>m</sup> ÷ a<sup>n</sup> = a<sup>m-n</sup>. Jadi 3<sup>5-2</sup> = 3<sup>3</sup> = 27." },
+            { id: 7, difficulty: "Mudah", level: 1, q: "Berapakah nilai dari (2<sup>2</sup>)<sup>3</sup>?", opts: ["12", "32", "64", "128"], correct: 2, exp: "Pangkat dari pangkat: (a<sup>m</sup>)<sup>n</sup> = a<sup>m×n</sup>. Jadi (2<sup>2</sup>)<sup>3</sup> = 2<sup>6</sup> = 64." },
+            { id: 8, difficulty: "Mudah", level: 1, q: "Bentuk pecahan dari 10<sup>-2</sup> adalah...", opts: ["1/10", "1/100", "1/1000", "-20"], correct: 1, exp: "10<sup>-2</sup> = 1 / 10<sup>2</sup> = 1/100." },
+            { id: 9, difficulty: "Mudah", level: 1, q: "Nilai dari (3 × 4)<sup>2</sup> adalah...", opts: ["24", "48", "144", "288"], correct: 2, exp: "(3 × 4)<sup>2</sup> = 12<sup>2</sup> = 144. Atau 3<sup>2</sup> × 4<sup>2</sup> = 9 × 16 = 144." },
+            { id: 10, difficulty: "Mudah", level: 1, q: "Hasil dari (6 ÷ 2)<sup>3</sup> adalah...", opts: ["9", "18", "27", "36"], correct: 2, exp: "(6 ÷ 2)<sup>3</sup> = 3<sup>3</sup> = 27." },
+            { id: 11, difficulty: "Mudah", level: 1, q: "Nilai dari 8<sup>1/3</sup> adalah...", opts: ["2", "4", "2,66", "8"], correct: 0, exp: "8<sup>1/3</sup> = ∛8 = 2." },
+            { id: 12, difficulty: "Mudah", level: 1, q: "Nilai dari 9<sup>1/2</sup> adalah...", opts: ["3", "4.5", "18", "81"], correct: 0, exp: "9<sup>1/2</sup> = √9 = 3." },
+            { id: 13, difficulty: "Mudah", level: 1, q: "Berapakah hasil dari (-2)<sup>4</sup>?", opts: ["-16", "-8", "8", "16"], correct: 3, exp: "Bilangan negatif dipangkatkan genap menghasilkan nilai positif: (-2) × (-2) × (-2) × (-2) = 16." },
+            { id: 14, difficulty: "Mudah", level: 1, q: "Berapakah hasil dari -2<sup>4</sup>?", opts: ["-16", "16", "-8", "8"], correct: 0, exp: "Tanda minus di luar pemangkatan: -(2<sup>4</sup>) = -(16) = -16." },
+            { id: 15, difficulty: "Mudah", level: 1, q: "Hasil dari (1/2)<sup>-3</sup> adalah...", opts: ["1/8", "-8", "6", "8"], correct: 3, exp: "(1/2)<sup>-3</sup> = (2/1)<sup>3</sup> = 2<sup>3</sup> = 8." },
+
+            // LEVEL 2: SEDANG
+            { id: 16, difficulty: "Sedang", level: 2, q: "Bentuk sederhana dari (2a<sup>3</sup>) × (3a<sup>4</sup>) adalah...", opts: ["5a<sup>7</sup>", "6a<sup>7</sup>", "6a<sup>12</sup>", "5a<sup>12</sup>"], correct: 1, exp: "(2 × 3) × a<sup>3+4</sup> = 6a<sup>7</sup>." },
+            { id: 17, difficulty: "Sedang", level: 2, q: "Bentuk sederhana dari (12x<sup>5</sup>y<sup>3</sup>) / (4x<sup>2</sup>y) adalah...", opts: ["3x<sup>3</sup>y<sup>2</sup>", "3x<sup>7</sup>y<sup>4</sup>", "8x<sup>3</sup>y<sup>2</sup>", "3x<sup>2.5</sup>y<sup>3</sup>"], correct: 0, exp: "(12/4) × x<sup>5-2</sup> × y<sup>3-1</sup> = 3x<sup>3</sup>y<sup>2</sup>." },
+            { id: 18, difficulty: "Sedang", level: 2, q: "Hasil penjabaran dari (p<sup>2</sup>q<sup>3</sup>)<sup>4</sup> adalah...", opts: ["p<sup>6</sup>q<sup>7</sup>", "p<sup>8</sup>q<sup>12</sup>", "p<sup>8</sup>q<sup>7</sup>", "p<sup>2</sup>q<sup>12</sup>"], correct: 1, exp: "Kalikan pangkat: p<sup>2×4</sup> q<sup>3×4</sup> = p<sup>8</sup>q<sup>12</sup>." },
+            { id: 19, difficulty: "Sedang", level: 2, q: "Berapakah nilai dari 27<sup>2/3</sup>?", opts: ["3", "6", "9", "18"], correct: 2, exp: "27 = 3<sup>3</sup>. Maka (3<sup>3</sup>)<sup>2/3</sup> = 3<sup>2</sup> = 9." },
+            { id: 20, difficulty: "Sedang", level: 2, q: "Hasil dari 16<sup>-3/4</sup> adalah...", opts: ["1/8", "1/4", "8", "-8"], correct: 0, exp: "16 = 2<sup>4</sup>. Maka (2<sup>4</sup>)<sup>-3/4</sup> = 2<sup>-3</sup> = 1/2<sup>3</sup> = 1/8." },
+            { id: 21, difficulty: "Sedang", level: 2, q: "Sederhanakanlah: (a<sup>-2</sup> b<sup>3</sup>) / (a b<sup>-1</sup>)", opts: ["b<sup>4</sup> / a<sup>3</sup>", "a<sup>3</sup> / b<sup>4</sup>", "b<sup>2</sup> / a", "a b<sup>2</sup>"], correct: 0, exp: "a<sup>-2-1</sup> b<sup>3-(-1)</sup> = a<sup>-3</sup> b<sup>4</sup> = b<sup>4</sup> / a<sup>3</sup>." },
+            { id: 22, difficulty: "Sedang", level: 2, q: "Jika 2<sup>x</sup> = 32, maka nilai x adalah...", opts: ["4", "5", "6", "7"], correct: 1, exp: "2<sup>x</sup> = 2<sup>5</sup>, sehingga x = 5." },
+            { id: 23, difficulty: "Sedang", level: 2, q: "Jika 3<sup>n+1</sup> = 81, tentukan nilai n.", opts: ["2", "3", "4", "5"], correct: 1, exp: "3<sup>n+1</sup> = 3<sup>4</sup> ⇒ n + 1 = 4 ⇒ n = 3." },
+            { id: 24, difficulty: "Sedang", level: 2, q: "Bentuk sederhana dari (x<sup>2</sup> y<sup>-3</sup>)<sup>-2</sup> adalah...", opts: ["x<sup>-4</sup> y<sup>-6</sup>", "y<sup>6</sup> / x<sup>4</sup>", "x<sup>4</sup> / y<sup>6</sup>", "x<sup>0</sup> y<sup>1</sup>"], correct: 1, exp: "x<sup>2(-2)</sup> y<sup>-3(-2)</sup> = x<sup>-4</sup> y<sup>6</sup> = y<sup>6</sup> / x<sup>4</sup>." },
+            { id: 25, difficulty: "Sedang", level: 2, q: "Hasil dari (2<sup>3</sup>)<sup>-2</sup> × (2<sup>2</sup>)<sup>4</sup> adalah...", opts: ["2", "4", "8", "16"], correct: 1, exp: "2<sup>-6</sup> × 2<sup>8</sup> = 2<sup>-6+8</sup> = 2<sup>2</sup> = 4." },
+
+            // LEVEL 3: MENANTANG
+            { id: 26, difficulty: "Menantang", level: 3, q: "Sederhanakan: ((2a<sup>2</sup> b<sup>-3</sup>) / (4a<sup>-1</sup> b<sup>2</sup>))<sup>-2</sup>", opts: ["4b<sup>10</sup> / a<sup>6</sup>", "a<sup>6</sup> / 4b<sup>10</sup>", "2b<sup>5</sup> / a<sup>3</sup>", "b<sup>10</sup> / 2a<sup>6</sup>"], correct: 0, exp: "Di dalam kurung = (1/2) a<sup>3</sup> b<sup>-5</sup>. Dipangkatkan -2 = (1/2)<sup>-2</sup> a<sup>-6</sup> b<sup>10</sup> = 4 b<sup>10</sup> / a<sup>6</sup>." },
+            { id: 27, difficulty: "Menantang", level: 3, q: "Hitunglah: (8<sup>2/3</sup> + 25<sup>1/2</sup>) / (81<sup>1/4</sup>)", opts: ["2", "3", "4", "5"], correct: 1, exp: "8<sup>2/3</sup> = 4, 25<sup>1/2</sup> = 5, 81<sup>1/4</sup> = 3. Maka (4 + 5) / 3 = 9 / 3 = 3." },
+            { id: 28, difficulty: "Menantang", level: 3, q: "Jika 5<sup>x-1</sup> = 125, tentukan nilai x.", opts: ["3", "4", "5", "6"], correct: 1, exp: "5<sup>x-1</sup> = 5<sup>3</sup> ⇒ x - 1 = 3 ⇒ x = 4." },
+            { id: 29, difficulty: "Menantang", level: 3, q: "Bentuk sederhana dari √a × a<sup>1/3</sup> adalah...", opts: ["a<sup>1/6</sup>", "a<sup>5/6</sup>", "a<sup>2/3</sup>", "a<sup>1/2</sup>"], correct: 1, exp: "a<sup>1/2</sup> × a<sup>1/3</sup> = a<sup>(1/2 + 1/3)</sup> = a<sup>5/6</sup>." },
+            { id: 30, difficulty: "Menantang", level: 3, q: "Hasil dari (3<sup>2</sup> × 5<sup>-2</sup>) / (3<sup>-1</sup> × 5) adalah...", opts: ["27 / 125", "9 / 25", "1 / 15", "81 / 5"], correct: 0, exp: "3<sup>2 - (-1)</sup> × 5<sup>-2 - 1</sup> = 3<sup>3</sup> × 5<sup>-3</sup> = 27 / 125." },
+            { id: 31, difficulty: "Menantang", level: 3, q: "Sederhanakan: (p<sup>1/2</sup> q<sup>3/4</sup>)<sup>4</sup>", opts: ["p<sup>2</sup> q<sup>3</sup>", "p<sup>2</sup> q<sup>7</sup>", "p<sup>4</sup> q<sup>3</sup>", "p q<sup>3</sup>"], correct: 0, exp: "p<sup>(1/2 × 4)</sup> q<sup>(3/4 × 4)</sup> = p<sup>2</sup> q<sup>3</sup>." },
+            { id: 32, difficulty: "Menantang", level: 3, q: "Jika 9<sup>x</sup> = 27, berapa nilai x?", opts: ["1", "1,5", "2", "3"], correct: 1, exp: "(3<sup>2</sup>)<sup>x</sup> = 3<sup>3</sup> ⇒ 3<sup>2x</sup> = 3<sup>3</sup> ⇒ 2x = 3 ⇒ x = 1,5." },
+            { id: 33, difficulty: "Menantang", level: 3, q: "Nilai dari (2<sup>-1</sup> + 3<sup>-1</sup>)<sup>-1</sup> adalah...", opts: ["5/6", "6/5", "5", "1/5"], correct: 1, exp: "1/2 + 1/3 = 5/6. Maka (5/6)<sup>-1</sup> = 6/5." },
+            { id: 34, difficulty: "Menantang", level: 3, q: "Manakah yang nilainya paling besar?", opts: ["2<sup>50</sup>", "3<sup>40</sup>", "4<sup>30</sup>", "5<sup>20</sup>"], correct: 1, exp: "2<sup>50</sup>=(2<sup>5</sup>)<sup>10</sup>=32<sup>10</sup>; 3<sup>40</sup>=(3<sup>4</sup>)<sup>10</sup>=81<sup>10</sup>; 4<sup>30</sup>=(4<sup>3</sup>)<sup>10</sup>=64<sup>10</sup>; 5<sup>20</sup>=(5<sup>2</sup>)<sup>10</sup>=25<sup>10</sup>. Maka 3<sup>40</sup> paling besar." },
+            { id: 35, difficulty: "Menantang", level: 3, q: "Bentuk perkalian (a<sup>1/2</sup> + b<sup>1/2</sup>)(a<sup>1/2</sup> - b<sup>1/2</sup>) sama dengan...", opts: ["a - b", "a + b", "a<sup>2</sup> - b<sup>2</sup>", "√a - √b"], correct: 0, exp: "Bentuk selisih kuadrat (x+y)(x-y) = x<sup>2</sup> - y<sup>2</sup>. Maka (a<sup>1/2</sup>)<sup>2</sup> - (b<sup>1/2</sup>)<sup>2</sup> = a - b." },
+
+            // LEVEL 4: HOTS
+            { id: 36, difficulty: "HOTS", level: 4, q: "Jika 2<sup>x</sup> = a dan 2<sup>y</sup> = b, nyatakan 2<sup>2x - 3y</sup> dalam a dan b.", opts: ["a<sup>2</sup> / b<sup>3</sup>", "2a / 3b", "a<sup>2</sup> - b<sup>3</sup>", "a / b<sup>6</sup>"], correct: 0, exp: "2<sup>2x - 3y</sup> = (2<sup>x</sup>)<sup>2</sup> / (2<sup>y</sup>)<sup>3</sup> = a<sup>2</sup> / b<sup>3</sup>." },
+            { id: 37, difficulty: "HOTS", level: 4, q: "Persamaan 4<sup>x+1</sup> - 5 × 2<sup>x</sup> + 1 = 0 memiliki himpunan penyelesaian...", opts: ["{-2, 0}", "{-1, 0}", "{0, 2}", "{1, 2}"], correct: 0, exp: "Misal 2<sup>x</sup> = p. Maka 4p<sup>2</sup> - 5p + 1 = 0 ⇒ (4p-1)(p-1) = 0 ⇒ p = 1/4 atau p = 1 ⇒ x = -2 atau x = 0." },
+            { id: 38, difficulty: "HOTS", level: 4, q: "Sebuah bakteri membelah menjadi 2 setiap 20 menit. Jika mula-mula ada 100 bakteri, berapa jumlahnya setelah 2 jam?", opts: ["3.200", "6.400", "12.800", "25.600"], correct: 1, exp: "2 jam = 120 menit = 6 periode (n=6). N = 100 × 2<sup>6</sup> = 100 × 64 = 6.400." },
+            { id: 39, difficulty: "HOTS", level: 4, q: "Peluruhan zat radioaktif mengikuti N(t) = N<sub>0</sub> × (1/2)<sup>t/10</sup>. Jika N<sub>0</sub> = 800 gram, sisa zat setelah 30 tahun adalah...", opts: ["50 gram", "100 gram", "200 gram", "400 gram"], correct: 1, exp: "N(30) = 800 × (1/2)<sup>30/10</sup> = 800 × (1/2)<sup>3</sup> = 800 × (1/8) = 100 gram." },
+            { id: 40, difficulty: "HOTS", level: 4, q: "Nilai x positif yang memenuhi persamaan (x - 2)<sup>x<sup>2</sup> - 4</sup> = 1 adalah...", opts: ["x = 3 saja", "x = 3 dan x = 1", "x = 2", "x = 4"], correct: 0, exp: "Basis = 1 ⇒ x - 2 = 1 ⇒ x = 3 (Valid). Pangkat = 0 ⇒ x<sup>2</sup>-4=0 ⇒ x=2 (Basis jadi 0, tidak valid) atau x=-2. Jadi x = 3." }
+        ];
+
+        /* ==========================================================================
+           3. WEB AUDIO SYNTHESIZER (OFFLINE SFX & BGM)
+           ========================================================================== */
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!isAudioOn) return;
+            initAudio();
+
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    // Splash noise / low pitch slide
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function toggleBGM() {
+            isAudioOn = !isAudioOn;
+            const bgmIcon = document.getElementById('bgmIcon');
+            const bgmText = document.getElementById('bgmText');
+            if (isAudioOn) {
+                bgmIcon.textContent = '🔊';
+                bgmText.textContent = 'BGM ON';
+                initAudio();
+                playSound('click');
+            } else {
+                bgmIcon.textContent = '🔇';
+                bgmText.textContent = 'BGM OFF';
+            }
+        }
+
+        /* ==========================================================================
+           4. FULL SCREEN & UI HELPERS
+           ========================================================================== */
+        function toggleFullScreen() {
+            playSound('click');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Gagal aktifkan Layar Penuh: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function openModal(id) {
+            playSound('click');
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+
+        function closeModal(id) {
+            playSound('click');
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function startWithMode(mode) {
+            currentMode = mode;
+            startGame();
+        }
+
+        /* ==========================================================================
+           5. GAME ENGINE & MULTIPLAYER LOGIC
+           ========================================================================== */
+        function startGame() {
+            playSound('click');
+            closeModal('resultModal');
+
+            // Hide Main Menu, Show Game Workspace
+            document.getElementById('mainMenu').classList.add('hidden');
+            const gameScreen = document.getElementById('gameScreen');
+            gameScreen.classList.remove('hidden');
+            gameScreen.classList.add('flex');
+
+            // Set Grid based on Mode (Using Vertical Divider Layout for Squad & Duel)
+            const playersGrid = document.getElementById('playersGrid');
+            playersGrid.innerHTML = '';
+
+            const modeIndicator = document.getElementById('modeIndicator');
+            if (modeIndicator) {
+                modeIndicator.textContent = `MODE ${currentMode.toUpperCase()}`;
+            }
+
+            let playerCount = 1;
+            if (currentMode === 'duel') playerCount = 2;
+            if (currentMode === 'squad') playerCount = 4;
+
+            if (playerCount === 1) {
+                playersGrid.className = "grid grid-cols-1 w-full h-full max-w-3xl mx-auto";
+            } else if (playerCount === 2) {
+                playersGrid.className = "grid grid-cols-2 divide-x-2 divide-yellow-400/40 gap-2 w-full h-full border-2 border-emerald-400/40 rounded-3xl overflow-hidden bg-emerald-950/40 backdrop-blur-md";
+            } else {
+                // SQUAD MODE: 4 vertical side-by-side columns with vertical divider lines
+                playersGrid.className = "grid grid-cols-4 divide-x-2 divide-yellow-400/40 gap-1 sm:gap-2 w-full h-full border-2 border-emerald-400/40 rounded-3xl overflow-hidden bg-emerald-950/40 backdrop-blur-md";
+            }
+
+            // Initialize Player Objects
+            players = [];
+            globalAnsweredQuestions = [];
+
+            for (let i = 0; i < playerCount; i++) {
+                const playerQuestions = shuffleArray([...QUESTION_BANK]).slice(0, GAME_CONFIG.questionsPerGame);
+                
+                const p = {
+                    id: i + 1,
+                    name: `PLAYER ${i + 1}`,
+                    score: 0,
+                    streak: 0,
+                    lives: GAME_CONFIG.startingLives,
+                    level: 1,
+                    questionIndex: 0,
+                    questions: playerQuestions,
+                    currentTimer: GAME_CONFIG.timePerQuestion,
+                    timerInterval: null,
+                    isLocked: false,
+                    history: []
+                };
+
+                players.push(p);
+                createPlayerCardUI(p);
+                startPlayerQuestion(p);
+            }
+
+            // Setup Global Keyboard Listener
+            window.removeEventListener('keydown', handleGlobalKeyDown);
+            window.addEventListener('keydown', handleGlobalKeyDown);
+        }
+
+        function createPlayerCardUI(player) {
+            const container = document.getElementById('playersGrid');
+            const card = document.createElement('div');
+            card.id = `player-card-${player.id}`;
+            card.className = "pond-bg p-2.5 sm:p-4 flex flex-col justify-between shadow-2xl relative min-h-[390px] sm:min-h-[430px] overflow-hidden rounded-2xl border border-emerald-500/30";
+
+            card.innerHTML = `
+                <!-- Player Header HUD -->
+                <div class="glass-panel rounded-xl sm:rounded-2xl p-1.5 sm:p-2.5 flex flex-col sm:flex-row justify-between items-center mb-1.5 z-10 text-center sm:text-left gap-1">
+                    <div class="flex items-center space-x-1 sm:space-x-2">
+                        <span class="font-game text-yellow-300 font-bold text-xs sm:text-base truncate max-w-[70px] sm:max-w-none">${player.name}</span>
+                        <div id="lives-${player.id}" class="text-[10px] sm:text-xs">❤️❤️❤️</div>
+                    </div>
+                    <div class="flex items-center space-x-1 sm:space-x-2 text-[10px] sm:text-xs font-bold flex-wrap justify-center">
+                        <span class="text-yellow-300">⭐<span id="score-${player.id}">0</span></span>
+                        <span class="text-orange-400">🔥<span id="streak-${player.id}">0</span></span>
+                        <span class="bg-emerald-700/80 px-1 py-0.5 rounded text-emerald-200">⏱️<span id="timer-${player.id}">${GAME_CONFIG.timePerQuestion}</span>s</span>
+                    </div>
+                </div>
+
+                <!-- High-Contrast Opaque Question Box -->
+                <div class="bg-slate-950/90 backdrop-blur-md rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-center my-1.5 border-2 border-yellow-400/70 shadow-[0_10px_25px_rgba(0,0,0,0.6)] z-10 flex flex-col justify-center min-h-[85px] sm:min-h-[105px]">
+                    <div class="text-[10px] sm:text-xs text-yellow-300 font-extrabold uppercase tracking-widest mb-1 flex items-center justify-center space-x-1" id="q-meta-${player.id}">
+                        Soal 1/10 • Level 1
+                    </div>
+                    <div class="text-sm sm:text-lg md:text-xl font-black text-white leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] tracking-wide" id="q-text-${player.id}">
+                        Memuat soal...
+                    </div>
+                </div>
+
+                <!-- Frog Pond Playground -->
+                <div id="pond-viewport-${player.id}" class="relative flex-grow flex items-center justify-center my-1 overflow-hidden min-h-[100px] sm:min-h-[140px]">
+                    <!-- Animated SVG Frog -->
+                    <div id="frog-${player.id}" class="absolute bottom-1 sm:bottom-2 z-20 transition-all duration-500 ease-out flex flex-col items-center">
+                        <svg class="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 drop-shadow-lg" viewBox="0 0 100 100">
+                            <!-- Eyes -->
+                            <circle cx="30" cy="25" r="14" fill="#22c55e" />
+                            <circle cx="30" cy="25" r="8" fill="#ffffff" />
+                            <circle cx="30" cy="25" r="4" fill="#000000" />
+                            
+                            <circle cx="70" cy="25" r="14" fill="#22c55e" />
+                            <circle cx="70" cy="25" r="8" fill="#ffffff" />
+                            <circle cx="70" cy="25" r="4" fill="#000000" />
+
+                            <!-- Body -->
+                            <ellipse cx="50" cy="60" rx="36" ry="28" fill="#22c55e" />
+                            <ellipse cx="50" cy="64" rx="24" ry="18" fill="#86efac" />
+
+                            <!-- Mouth & Blush -->
+                            <path d="M 35 60 Q 50 72 65 60" stroke="#15803d" stroke-width="3" fill="none" stroke-linecap="round" />
+                            <circle cx="28" cy="58" r="5" fill="#f43f5e" opacity="0.5" />
+                            <circle cx="72" cy="58" r="5" fill="#f43f5e" opacity="0.5" />
+                        </svg>
+                    </div>
+
+                    <!-- Water Effect Container -->
+                    <div id="water-fx-${player.id}" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+
+                <!-- Feedback Toast -->
+                <div id="feedback-${player.id}" class="hidden text-center font-bold text-[9px] sm:text-xs py-0.5 rounded-lg mb-1 z-20 truncate"></div>
+
+                <!-- Answer Choices (Lily Pads Grid) -->
+                <div id="options-grid-${player.id}" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 z-10">
+                    <!-- Option buttons will be dynamically rendered here -->
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
+        function startPlayerQuestion(player) {
+            if (player.questionIndex >= player.questions.length || player.lives <= 0) {
+                finishPlayer(player);
+                return;
+            }
+
+            const qData = player.questions[player.questionIndex];
+            player.isLocked = false;
+            player.currentTimer = GAME_CONFIG.timePerQuestion;
+
+            // Update Level based on question level
+            player.level = qData.level;
+
+            // Shuffle Option Choices
+            const shuffledOptions = qData.opts.map((opt, idx) => ({ text: opt, originalIdx: idx }));
+            shuffleArray(shuffledOptions);
+            player.currentShuffledOptions = shuffledOptions;
+
+            // UI Updates
+            document.getElementById(`q-meta-${player.id}`).textContent = `Soal ${player.questionIndex + 1}/${player.questions.length} • Level ${qData.level} (${qData.difficulty})`;
+            document.getElementById(`q-text-${player.id}`).innerHTML = qData.q;
+            document.getElementById(`feedback-${player.id}`).className = "hidden";
+
+            // Render Lily Pad Options
+            const optionsGrid = document.getElementById(`options-grid-${player.id}`);
+            optionsGrid.innerHTML = '';
+
+            const keyLabels = getKeyLabelsForPlayer(player.id);
+
+            shuffledOptions.forEach((optObj, i) => {
+                const pad = document.createElement('button');
+                pad.className = "lily-pad animate-float bg-emerald-800/90 hover:bg-emerald-700 border-2 border-emerald-400/60 p-2.5 sm:p-3 rounded-2xl flex items-center space-x-2 text-left text-xs sm:text-sm font-bold shadow-lg";
+                pad.onclick = () => handleAnswer(player, i);
+
+                const keyBadge = keyLabels[i] ? `<span class="bg-emerald-950/80 text-yellow-300 text-[10px] sm:text-xs px-2 py-0.5 rounded-lg border border-emerald-500/30">${keyLabels[i]}</span>` : '';
+
+                pad.innerHTML = `
+                    ${keyBadge}
+                    <span class="text-white flex-grow">${optObj.text}</span>
+                `;
+                optionsGrid.appendChild(pad);
+            });
+
+            // Reset Frog Position
+            const frog = document.getElementById(`frog-${player.id}`);
+            frog.className = "absolute bottom-2 z-20 transition-all duration-500 ease-out flex flex-col items-center";
+
+            // Reset & Start Timer
+            clearInterval(player.timerInterval);
+            document.getElementById(`timer-${player.id}`).textContent = player.currentTimer;
+            
+            player.timerInterval = setInterval(() => {
+                player.currentTimer--;
+                document.getElementById(`timer-${player.id}`).textContent = player.currentTimer;
+
+                if (player.currentTimer <= 0) {
+                    clearInterval(player.timerInterval);
+                    handleAnswer(player, -1); // Timeout treated as incorrect
+                }
+            }, 1000);
+        }
+
+        function getKeyLabelsForPlayer(playerId) {
+            if (playerId === 1) return ['1', '2', '3', '4'];
+            if (playerId === 2) return ['Q', 'W', 'E', 'R'];
+            if (playerId === 3) return ['A', 'S', 'D', 'F'];
+            if (playerId === 4) return ['Z', 'X', 'C', 'V'];
+            return ['A', 'B', 'C', 'D'];
+        }
+
+        function handleGlobalKeyDown(e) {
+            const key = e.key.toUpperCase();
+            
+            // Map keys to Player 1-4
+            players.forEach(p => {
+                if (p.isLocked) return;
+                const labels = getKeyLabelsForPlayer(p.id);
+                const matchIdx = labels.indexOf(key);
+                if (matchIdx !== -1) {
+                    handleAnswer(p, matchIdx);
+                }
+            });
+        }
+
+        function handleAnswer(player, chosenShuffledIdx) {
+            if (player.isLocked) return;
+            player.isLocked = true;
+            clearInterval(player.timerInterval);
+
+            const qData = player.questions[player.questionIndex];
+            const frog = document.getElementById(`frog-${player.id}`);
+            const feedback = document.getElementById(`feedback-${player.id}`);
+            const pondFx = document.getElementById(`water-fx-${player.id}`);
+
+            let isCorrect = false;
+            let chosenText = "Waktu Habis!";
+
+            if (chosenShuffledIdx >= 0 && chosenShuffledIdx < player.currentShuffledOptions.length) {
+                const chosenOpt = player.currentShuffledOptions[chosenShuffledIdx];
+                chosenText = chosenOpt.text;
+                if (chosenOpt.originalIdx === qData.correct) {
+                    isCorrect = true;
+                }
+            }
+
+            // Record History for Discussion Review
+            player.history.push({
+                question: qData.q,
+                userAnswer: chosenText,
+                correctAnswer: qData.opts[qData.correct],
+                isCorrect: isCorrect,
+                explanation: qData.exp
+            });
+            globalAnsweredQuestions.push({
+                player: player.name,
+                question: qData.q,
+                userAnswer: chosenText,
+                correctAnswer: qData.opts[qData.correct],
+                isCorrect: isCorrect,
+                explanation: qData.exp
+            });
+
+            if (isCorrect) {
+                playSound('correct');
+                playSound('jump');
+
+                // Score & Streak Calculation
+                player.streak++;
+                const streakBonus = GAME_CONFIG.streakBonuses[player.streak] || (player.streak > 5 ? 100 : 0);
+                const points = GAME_CONFIG.basePoints + streakBonus;
+                player.score += points;
+
+                // Update HUD
+                document.getElementById(`score-${player.id}`).textContent = player.score;
+                document.getElementById(`streak-${player.id}`).textContent = player.streak;
+
+                // Animation Correct: Jump Up & Sparkles
+                frog.classList.add('animate-jump');
+                createSparkles(pondFx);
+
+                feedback.className = "text-center font-bold text-xs sm:text-sm py-1 px-3 rounded-xl mb-2 z-20 bg-emerald-500/90 text-white shadow-lg animate-bounce";
+                feedback.innerHTML = `✅ BENAR! +${points} Poin ${streakBonus ? `(Streak +${streakBonus})` : ''}`;
+
+            } else {
+                playSound('wrong');
+
+                // Streak Reset & Life Penalty
+                player.streak = 0;
+                player.lives--;
+
+                document.getElementById(`streak-${player.id}`).textContent = 0;
+                document.getElementById(`lives-${player.id}`).textContent = '❤️'.repeat(Math.max(0, player.lives));
+
+                // Animation Wrong: Sink & Water Ripple
+                frog.classList.add('animate-sink');
+                createWaterSplash(pondFx);
+
+                feedback.className = "text-center font-bold text-xs sm:text-sm py-1 px-3 rounded-xl mb-2 z-20 bg-rose-500/90 text-white shadow-lg";
+                feedback.innerHTML = `❌ SALAH! Jawaban: ${qData.opts[qData.correct]}`;
+            }
+
+            feedback.classList.remove('hidden');
+
+            // Delay for next question transition
+            setTimeout(() => {
+                player.questionIndex++;
+                if (player.lives <= 0 || player.questionIndex >= player.questions.length) {
+                    finishPlayer(player);
+                } else {
+                    startPlayerQuestion(player);
+                }
+            }, 1200);
+        }
+
+        function createSparkles(container) {
+            for (let i = 0; i < 8; i++) {
+                const s = document.createElement('div');
+                s.className = "sparkle text-yellow-300 text-lg";
+                s.textContent = ["✨", "⭐", "💚"][Math.floor(Math.random() * 3)];
+                s.style.left = `50%`;
+                s.style.top = `50%`;
+                s.style.setProperty('--dx', `${(Math.random() - 0.5) * 120}px`);
+                s.style.setProperty('--dy', `${(Math.random() - 0.5) * 120}px`);
+                container.appendChild(s);
+                setTimeout(() => s.remove(), 1000);
+            }
+        }
+
+        function createWaterSplash(container) {
+            // Main Ripple Ring
+            const r = document.createElement('div');
+            r.className = "ripple";
+            r.style.left = "50%";
+            r.style.top = "70%";
+            container.appendChild(r);
+            setTimeout(() => r.remove(), 850);
+
+            // Water Splash Droplets Flying Out
+            for (let i = 0; i < 10; i++) {
+                const drop = document.createElement('div');
+                drop.className = "splash-drop";
+                drop.style.left = "50%";
+                drop.style.top = "65%";
+                drop.style.setProperty('--dx', `${(Math.random() - 0.5) * 150}px`);
+                container.appendChild(drop);
+                setTimeout(() => drop.remove(), 650);
+            }
+        }
+
+        function finishPlayer(player) {
+            clearInterval(player.timerInterval);
+            player.isLocked = true;
+
+            const card = document.getElementById(`player-card-${player.id}`);
+            if (card) {
+                card.classList.add('opacity-80');
+            }
+
+            // Check if all players finished
+            const allFinished = players.every(p => p.isLocked && (p.lives <= 0 || p.questionIndex >= p.questions.length));
+            if (allFinished) {
+                setTimeout(showFinalResults, 600);
+            }
+        }
+
+        /* ==========================================================================
+           6. RESULTS, LEADERBOARD & DISCUSSION REVIEW
+           ========================================================================== */
+        function showFinalResults() {
+            playSound('correct');
+
+            // Sort players by score descending
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            const leaderboardContainer = document.getElementById('leaderboardContainer');
+            leaderboardContainer.innerHTML = '';
+
+            const resultTitle = document.getElementById('resultTitle');
+
+            if (players.length === 1) {
+                resultTitle.textContent = "🏆 HASIL PERMAINAN SOLO";
+                const p = sorted[0];
+                const totalQ = p.questions.length;
+                const correctCount = p.history.filter(h => h.isCorrect).length;
+                const accuracy = Math.round((correctCount / totalQ) * 100) || 0;
+
+                leaderboardContainer.innerHTML = `
+                    <div class="glass-panel p-4 rounded-2xl border border-yellow-400/40 space-y-2">
+                        <div class="font-game text-2xl text-yellow-300">⭐ Total Skor: ${p.score}</div>
+                        <div class="grid grid-cols-3 gap-2 text-xs sm:text-sm pt-2 text-emerald-100">
+                            <div class="bg-emerald-950/60 p-2 rounded-xl">✅ Benar: <strong>${correctCount}</strong></div>
+                            <div class="bg-emerald-950/60 p-2 rounded-xl">❌ Salah: <strong>${totalQ - correctCount}</strong></div>
+                            <div class="bg-emerald-950/60 p-2 rounded-xl">📊 Akurasi: <strong>${accuracy}%</strong></div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultTitle.textContent = sorted[0].score === sorted[1].score ? "🤝 HASIL SERI!" : `🏆 ${sorted[0].name} MENANG!`;
+
+                sorted.forEach((p, rank) => {
+                    const medal = rank === 0 ? "🥇" : rank === 1 ? "🥈" : rank === 2 ? "🥉" : "🎖️";
+                    const item = document.createElement('div');
+                    item.className = `glass-panel p-3.5 rounded-2xl flex justify-between items-center border ${rank === 0 ? 'border-yellow-400 bg-yellow-400/10' : 'border-white/20'}`;
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">${medal}</span>
+                            <div class="text-left">
+                                <div class="font-bold text-sm sm:text-base text-yellow-300">${p.name}</div>
+                                <div class="text-xs text-emerald-200">${p.history.filter(h => h.isCorrect).length} Benar • Level ${p.level}</div>
+                            </div>
+                        </div>
+                        <div class="font-game text-xl text-yellow-300">${p.score} Pts</div>
+                    `;
+                    leaderboardContainer.appendChild(item);
+                });
+            }
+
+            openModal('resultModal');
+        }
+
+        function openReviewModal() {
+            closeModal('resultModal');
+            reviewIndex = 0;
+            renderReviewPage();
+            openModal('reviewModal');
+        }
+
+        function renderReviewPage() {
+            const container = document.getElementById('reviewContent');
+            const indicator = document.getElementById('reviewPageIndicator');
+            container.innerHTML = '';
+
+            if (globalAnsweredQuestions.length === 0) {
+                container.innerHTML = '<p class="text-center text-emerald-200">Belum ada soal yang dijawab.</p>';
+                indicator.textContent = '0 dari 0';
+                return;
+            }
+
+            const item = globalAnsweredQuestions[reviewIndex];
+            indicator.textContent = `Soal ${reviewIndex + 1} dari ${globalAnsweredQuestions.length} (${item.player})`;
+
+            container.innerHTML = `
+                <div class="glass-panel p-4 rounded-2xl border border-white/20 space-y-3">
+                    <div class="text-xs text-yellow-300 font-bold uppercase">${item.player}</div>
+                    <div class="text-base sm:text-lg font-bold text-white">${item.question}</div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm pt-2">
+                        <div class="p-2.5 rounded-xl ${item.isCorrect ? 'bg-emerald-950/80 border border-emerald-500' : 'bg-rose-950/80 border border-rose-500'}">
+                            Jawaban Kamu: <strong>${item.userAnswer}</strong> ${item.isCorrect ? '✅' : '❌'}
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500">
+                            Jawaban Benar: <strong>${item.correctAnswer}</strong>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-950/90 p-3 rounded-xl border border-emerald-700/60 text-xs sm:text-sm text-emerald-100">
+                        <strong class="text-yellow-300 block mb-1">💡 Pembahasan:</strong>
+                        ${item.explanation}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('btnPrevReview').disabled = reviewIndex === 0;
+            document.getElementById('btnNextReview').disabled = reviewIndex === globalAnsweredQuestions.length - 1;
+        }
+
+        function navigateReview(dir) {
+            playSound('click');
+            reviewIndex += dir;
+            if (reviewIndex < 0) reviewIndex = 0;
+            if (reviewIndex >= globalAnsweredQuestions.length) reviewIndex = globalAnsweredQuestions.length - 1;
+            renderReviewPage();
+        }
+
+        function returnToMenu() {
+            playSound('click');
+            closeModal('resultModal');
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
+        }
+
+        function quitGame() {
+            playSound('click');
+            openModal('quitConfirmModal');
+        }
+
+        function confirmQuitGame() {
+            playSound('click');
+            // Stop all player timers
+            players.forEach(p => {
+                if (p.timerInterval) {
+                    clearInterval(p.timerInterval);
+                }
+                p.isLocked = true;
+            });
+            closeModal('quitConfirmModal');
+            returnToMenu();
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+    </script>
+</body>
+</html>
